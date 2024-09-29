@@ -14,9 +14,9 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'My Awesome App',
-        short_name: 'MyApp',
-        description: 'My Awesome App description',
+        name: 'Money Log',
+        short_name: 'Money Log',
+        description: 'A simple money log app',
         theme_color: '#ffffff',
         icons: [
           {
