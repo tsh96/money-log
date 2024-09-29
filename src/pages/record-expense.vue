@@ -122,7 +122,7 @@ async function parsePhoto(photo: File) {
       amount: number;
       tax: number;
       items: {
-        description: string;
+        description: string; // Not including the barcode, only the name of the item.
         quantity: number;
         amount: number;
       }[];
