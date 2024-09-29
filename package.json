@@ -14,7 +14,8 @@
     "date-fns": "^4.1.0",
     "dexie": "^4.0.8",
     "lodash": "^4.17.21",
-    "vue": "^3.4.37"
+    "vue": "^3.4.37",
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.2",
@@ -23,6 +24,7 @@
     "naive-ui": "^2.40.1",
     "pug": "^3.0.3",
     "typescript": "^5.5.3",
+    "unplugin-vue-router": "^0.10.8",
     "vfonts": "^0.0.3",
     "vite": "^5.4.1",
     "vite-plugin-pwa": "^0.20.5",
