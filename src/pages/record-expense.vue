@@ -118,7 +118,7 @@ async function parsePhoto(photo: File) {
     amount: number;
     date: string;
     receipt: {
-      seller_name: string;
+      seller_name: string; // The name of the seller only, should not include the address, phone number, etc.
       amount: number;
       tax: number;
       items: {
