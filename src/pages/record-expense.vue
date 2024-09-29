@@ -49,8 +49,7 @@ async function takeAndParsePhoto() {
   try {
     parsingPhoto.value = true
     const photo = await takePhoto()
-    const { cost, result } = await parsePhoto(photo)
-    console.log(cost, result)
+    const { result } = await parsePhoto(photo)
     expensesForm.value = {
       type: 'expense',
       amount: result.amount,
@@ -65,8 +64,9 @@ async function takeAndParsePhoto() {
           amount: item.amount,
         }))
       }
-
     }
+  } catch(e) {
+    console.error(e)
   } finally {
     parsingPhoto.value = false
   }
@@ -138,7 +138,6 @@ async function parsePhoto(photo: File) {
 LayoutWithNav(title="Record Expense" back-url="/")
   NScrollbar
     .container
-      NButton(type="primary" size="large" block @click="takeAndParsePhoto()" :loading="parsingPhoto") Take Photo
       NForm
         NFormItem(label="Description")
           NInput(v-model:value="expensesForm.description")
@@ -170,7 +169,9 @@ LayoutWithNav(title="Record Expense" back-url="/")
                 div(style="display: flex; flex-direction: column; place-items: center; justify-content: center;")
                   NButton(type="primary" size="small" @click="create(index + 1)" block) +
                   NButton(type="error" size="small" @click="remove(index)" block) -
-        NButton(type="primary" size="large" block @click="saveExpense") Save
+        div(style="display: grid; gap: 10px; grid-template-columns: 1fr 1fr;")
+          NButton(type="primary" size="large" @click="saveExpense") Save
+          NButton(type="primary" size="large" @click="takeAndParsePhoto()" :loading="parsingPhoto") Take Photo
 </template>
 
 <style scoped>
