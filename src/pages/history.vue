@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { NButton, NCard, NDivider, NModal, NScrollbar, NTag, NTimeline, NTimelineItem } from 'naive-ui'
+import { NButton, NCard, NDivider, NModal, NPopconfirm, NScrollbar, NTag, NTimeline, NTimelineItem } from 'naive-ui'
 import { db } from '../composables/db'
 import type { Transaction } from '../composables/transaction'
 import LayoutWithNav from '../components/LayoutWithNav.vue'
@@ -76,7 +76,10 @@ NModal(
         div Qty: {{ item.quantity }}
         b ${{ item.amount.toFixed(2) }}
   template(#footer)
-    NButton(type="error" @click="deleteTransaction()") Delete
+    NPopconfirm(@positive-click="deleteTransaction()")
+      div Are you sure to delete this transaction?
+      template(#trigger)
+        NButton(type="error") Delete
 </template>
 
 <style scoped>
