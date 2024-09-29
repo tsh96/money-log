@@ -64,7 +64,7 @@ async function takeAndParsePhoto() {
         type: 'expense',
         amount: result.amount,
         description: result.summary,
-        date: new Date(result.date).getTime(),
+        date: new Date(result.date).getTime() || Date.now(),
         receipt: {
           seller: result.receipt.seller_name,
           amount: result.receipt.amount,
