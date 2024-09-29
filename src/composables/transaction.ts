@@ -15,6 +15,7 @@ export type ExpenseTransaction = {
   date: number;
   receipt?: {
     seller: string;
+    tax: number;
     amount: number;
     items: {
       description: string;

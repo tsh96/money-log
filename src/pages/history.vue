@@ -41,8 +41,8 @@ LayoutWithNav(title="History" back-url="/")
           v-for="transaction in transactions"
           type="error"
           :key="transaction.id"
-          :title="`$${transaction.amount.toFixed(2)}`"
-          :content="transaction.description"
+          :title="transaction.description"
+          :content="`$${transaction.amount.toFixed(2)}`"
           :time="format(transaction.date, 'yyyy-MM-dd')"
           @click="showTransactionModal(transaction)"
         )
@@ -65,6 +65,7 @@ NModal(
   template(v-if="selectedTransaction.type == 'expense' && selectedTransaction.receipt")
     h3 Receipt
     p Seller: {{ selectedTransaction.receipt.seller }}
+    p Tax: ${{ (selectedTransaction.receipt.tax || 0).toFixed(2) }}
     p Amount: 
       b ${{ selectedTransaction.receipt.amount.toFixed(2) }}
     NCard(

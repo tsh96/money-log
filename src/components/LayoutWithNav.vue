@@ -26,8 +26,9 @@ defineProps<{
   justify-content: center;
   align-items: center;
   padding: 0 20px;
-  height: 60px;
+  min-height: 60px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
 .header__back {

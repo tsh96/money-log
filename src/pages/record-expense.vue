@@ -24,10 +24,11 @@ function newReceiptItem() {
   }
 }
 
-function newReceipt() {
+function newReceipt(): ExpenseTransaction['receipt'] {
   return {
     seller: '',
     amount: 0,
+    tax: 0,
     items: []
   }
 }
@@ -46,54 +47,52 @@ const parsingPhoto = ref(false)
 
 // Define the takePhoto function
 async function takeAndParsePhoto() {
-  try {
-    parsingPhoto.value = true
-    const photo = await takePhoto()
-    const { result } = await parsePhoto(photo)
-    expensesForm.value = {
-      type: 'expense',
-      amount: result.amount,
-      description: result.description,
-      date: new Date(result.date).getTime(),
-      receipt: {
-        seller: result.receipt.seller,
-        amount: result.receipt.amount,
-        items: result.receipt.items.map((item: any) => ({
-          description: item.description,
-          quantity: item.quantity,
-          amount: item.amount,
-        }))
+  takePhoto(async (photo) => {
+    try {
+      parsingPhoto.value = true
+      const { result } = await parsePhoto(photo)
+      expensesForm.value = {
+        type: 'expense',
+        amount: result.amount,
+        description: result.summary,
+        date: new Date(result.date).getTime(),
+        receipt: {
+          seller: result.receipt.seller_name,
+          amount: result.receipt.amount,
+          tax: result.receipt.tax,
+          items: result.receipt.items.map((item: any) => ({
+            description: item.description,
+            quantity: item.quantity,
+            amount: item.amount,
+          }))
+        }
       }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      parsingPhoto.value = false
     }
-  } catch(e) {
-    console.error(e)
-  } finally {
-    parsingPhoto.value = false
-  }
+  })
 }
 
-function takePhoto() {
-  return new Promise<File>((resolve, reject) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.id = 'environment';
-    input.capture = 'environment';
-    input.accept = 'image/*';
-    input.style.display = 'none';
+function takePhoto(callback: (photo: File) => void) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.id = 'environment';
+  input.capture = 'environment';
+  input.accept = 'image/*';
+  input.style.display = 'none';
 
-    input.addEventListener('change', (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0];
-      if (file) {
-        resolve(file)
-      } else {
-        reject()
-      }
-    });
+  input.addEventListener('change', (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      callback(file)
+    }
+  });
 
-    document.body.appendChild(input);
-    input.click();
-    document.body.removeChild(input);
-  })
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
 }
 
 async function fileToGenerativePart(file: File) {
@@ -113,9 +112,25 @@ async function parsePhoto(photo: File) {
 
   const model = genAI.getGenerativeModel({ model: settings.value.geminiModel });
 
-  const schemaPrompt = '{description: string, amount: number, date: string, receipt: {seller: string, amount: number, items: {description: string, quantity: number, amount: number}[]}}'
+  const schemaPrompt = `
+  {
+    summary: string; // A short summary of the receipt, for example Food, Groceries, etc.
+    amount: number;
+    date: string;
+    receipt: {
+      seller_name: string;
+      amount: number;
+      tax: number;
+      items: {
+        description: string;
+        quantity: number;
+        amount: number;
+      }[];
+    };
+  }
+  `
 
-  const promptPrefix = "Express in json format without markdown schema. Use the following schema: \n"
+  const promptPrefix = "Express receipt in json format without markdown schema. Use the following schema: \n"
   const prompt = promptPrefix + schemaPrompt
 
   const filePart = await fileToGenerativePart(photo)
@@ -140,7 +155,7 @@ LayoutWithNav(title="Record Expense" back-url="/")
     .container
       NForm
         NFormItem(label="Description")
-          NInput(v-model:value="expensesForm.description")
+          NInput(v-model:value="expensesForm.description" type="textarea" autosize)
         NFormItem(label="Amount")
           NInputNumber(type="number" step="0.01" v-model:value="expensesForm.amount" :precision="2")
             template(#prefix) $
@@ -150,7 +165,10 @@ LayoutWithNav(title="Record Expense" back-url="/")
           NCheckbox(:checked="!!expensesForm.receipt" @update:checked="expensesForm.receipt = $event ? newReceipt() : undefined")
         template(v-if="!!expensesForm.receipt")
           NFormItem(label="Seller")
-            NInput(v-model:value="expensesForm.receipt.seller")
+            NInput(v-model:value="expensesForm.receipt.seller" type="textarea" autosize)
+          NFormItem(label="Tax")
+            NInputNumber(type="number" step="0.01" v-model:value="expensesForm.receipt.tax" :precision="2")
+              template(#prefix) $
           NFormItem(label="Amount")
             NInputNumber(type="number" step="0.01" v-model:value="expensesForm.receipt.amount" :precision="2")
               template(#prefix) $
@@ -159,9 +177,9 @@ LayoutWithNav(title="Record Expense" back-url="/")
               template(#default="{ value }")
                 NCard
                   NFormItem(label="Description")
-                    NInput(v-model:value="value.description")
+                    NInput(v-model:value="value.description" type="textarea" autosize)
                   NFormItem(label="Quantity")
-                    NInputNumber(type="number" v-model:value="value.quantity" :precision="2")
+                    NInputNumber(type="number" v-model:value="value.quantity")
                   NFormItem(label="Amount")
                     NInputNumber(type="number" step="0.01" v-model:value="value.amount" :precision="2")
                       template(#prefix) $
