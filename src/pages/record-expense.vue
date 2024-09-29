@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, toRaw } from 'vue'
-import { NForm, NFormItem, NInputNumber, NInput, NDatePicker, NDynamicInput, NButton, NCard, NCheckbox, NScrollbar } from 'naive-ui'
+import { NForm, NFormItem, NInputNumber, NInput, NDatePicker, NDynamicInput, NButton, NCard, NCheckbox, NScrollbar, useMessage } from 'naive-ui'
 import { db } from '../composables/db'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { ExpenseTransaction } from '../composables/transaction'
@@ -33,13 +33,22 @@ function newReceipt(): ExpenseTransaction['receipt'] {
   }
 }
 
+const message = useMessage()
+
 async function saveExpense() {
-  await db.transactions.add(toRaw(expensesForm.value))
-  expensesForm.value = {
-    type: 'expense',
-    amount: 0,
-    description: '',
-    date: new Date().getTime(),
+  try {
+    await db.transactions.add(toRaw(expensesForm.value))
+
+    expensesForm.value = {
+      type: 'expense',
+      amount: 0,
+      description: '',
+      date: new Date().getTime(),
+    }
+
+    message.success('Expense saved successfully')
+  } catch (e) {
+    message.error(`Failed to save expense: ${e}`)
   }
 }
 

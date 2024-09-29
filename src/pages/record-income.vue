@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, toRaw } from 'vue'
-import { NForm, NFormItem, NInputNumber, NInput, NDatePicker, NButton, NScrollbar } from 'naive-ui'
+import { NForm, NFormItem, NInputNumber, NInput, NDatePicker, NButton, NScrollbar, useMessage } from 'naive-ui'
 import { db } from '../composables/db'
 import type { IncomeTransaction } from '../composables/transaction'
 import LayoutWithNav from '../components/LayoutWithNav.vue'
@@ -12,13 +12,20 @@ const incomeForm = ref<IncomeTransaction>({
   date: new Date().getTime(),
 })
 
+const message = useMessage()
+
 async function saveIncome() {
-  await db.transactions.add(toRaw(incomeForm.value))
-  incomeForm.value = {
-    type: 'income',
-    amount: 0,
-    description: '',
-    date: new Date().getTime(),
+  try {
+    await db.transactions.add(toRaw(incomeForm.value))
+    incomeForm.value = {
+      type: 'income',
+      amount: 0,
+      description: '',
+      date: new Date().getTime(),
+    }
+    message.success('Income saved successfully')
+  } catch (e) {
+    message.error(`Failed to save income: ${e}`)
   }
 }
 

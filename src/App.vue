@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { NMessageProvider } from 'naive-ui';
+
 </script>
 
 <template lang="pug">
-RouterView
+NMessageProvider
+  RouterView
 </template>
 
 <style scoped>
